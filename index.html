@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RAM Rice</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="RAM Rice – trusted local rice supplier in Davao City. Explore products and prices.">
+<link rel="icon" type="image/png" href="https://i.ibb.co/JWfbfrgv/ramrice.png">
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <!-- accessibility: skip link -->
+  <a href="#main" class="skip-link">Skip to main content</a>
+
+<header>
+  <a href="#home" aria-label="Back to home"><img src="https://i.ibb.co/JWfbfrgv/ramrice.png" alt="RAM Rice logo"></a>
+  <!-- mobile menu button -->
+  <button id="menu-toggle" aria-expanded="false" aria-label="Toggle navigation">☰</button>
+  <nav role="navigation" aria-label="Main menu">
+    <ul>
+      <li><a href="#home" data-section="home">Home</a></li>
+      <li><a href="#products" data-section="products">Products</a></li>
+      <li><a href="#prices" data-section="prices">Per Sack Prices</a></li>
+      <li><a href="#perKilo" data-section="perKilo">Per Kilo Prices</a></li>
+      <li><a href="order.html">Order</a></li>
+      <li><a href="#contact" data-section="contact">Contact</a></li>
+      <li><a href="#about" data-section="about">About</a></li>
+      <li><a href="#admin" data-section="admin">Admin</a></li>
+    </ul>
+  </nav>
+</header>
+
+<!-- HOME -->
+<main id="main">
+  <section id="home" class="section active">
+    <h1>Welcome to RAM Rice</h1>
+    <p>Quality rice for your home and business in Davao City.</p>
+    <img src="https://i.ibb.co/JWfbfrgv/ramrice.png" width="200" alt="Rice sack image">
+    <div class="quick-links" aria-label="Quick links">
+      <a href="#prices" data-section="prices" class="quick-link">View Sack Prices</a>
+      <a href="#perKilo" data-section="perKilo" class="quick-link">View Kilo Prices</a>
+      <a href="#contact" data-section="contact" class="quick-link">Contact Us</a>
+    </div>
+    <div class="hero-actions">
+      <a href="order.html" class="order-btn">Place an Order</a>
+    </div>
+  </section>
+
+<!-- PRODUCTS -->
+<section id="products" class="section">
+  <h2>Our Products</h2>
+  <p class="section-subtitle">These are the premium rice brands we carry. For other variants, visit the <a href="#prices" data-section="prices">Per Sack</a> or <a href="#perKilo" data-section="perKilo">Per Kilo</a> sections.</p>
+  <div class="products">
+    <div class="card">
+      <img src="https://uploads.onecompiler.io/43zvnx5wm/44bbn53nu/maharlika-super-special.png" alt="Maharlika Super Special rice">
+      <h3>Maharlika Super Special</h3>
+    </div>
+    <div class="card">
+      <img src="https://uploads.onecompiler.io/43zvnx5wm/44bbn53nu/7450bb2e6cdc11151057cf29f8e08238.png" alt="Sinandomeng rice">
+      <h3>Sinandomeng</h3>
+    </div>
+    <div class="card">
+      <img src="https://uploads.onecompiler.io/43zvnx5wm/44bbn53nu/3311-1-500x500.jpg" alt="Jasmine rice">
+      <h3>Jasmine Rice</h3>
+    </div>
+    <div class="card">
+      <img src="https://uploads.onecompiler.io/43zvnx5wm/44bbn53nu/21922fe2857db08cc43e1544827d7a54.jpg" alt="Dinorado rice">
+      <h3>Dinorado Rice</h3>
+    </div>
+    <div class="card">
+      <img src="https://uploads.onecompiler.io/43zvnx5wm/44bc3d6m4/3664-1-500x500.jpg" alt="Kohaku rice">
+      <h3>Kohaku Rice</h3>
+    </div>
+  </div>
+</section>
+
+<!-- PER SACK PRICES -->
+<section id="prices" class="section">
+  <h2>Rice Prices (per sack)</h2>
+  <div class="products" id="sack-prices-list">
+    <!-- dynamically rendered by script.js -->
+  </div>
+</section>
+
+<!-- PER KILO PRICES WITH IMAGE -->
+<section id="perKilo" class="section">
+  <h2>Rice Prices (per kilo)</h2>
+
+  <!-- Per kilo rice price image -->
+  <img src="https://uploads.onecompiler.io/43zvnx5wm/44bfbs3n5/wp-1475585290828.jpg"
+      class="price-list-img"
+      alt="Rice prices per kilo table">
+
+  <div class="products" id="kilo-prices-list">
+    <!-- dynamically rendered by script.js -->
+  </div>
+</section>
+
+<section id="admin" class="section">
+  <h2>Admin Stock & Price Monitor</h2>
+  <div class="admin-login-wrap">
+    <p>Please log in to access admin tools.</p>
+    <form id="admin-login-form" class="admin-login-form">
+      <div class="form-group">
+        <label for="admin-username">Username</label>
+        <input id="admin-username" type="text" autocomplete="username" required>
+      </div>
+      <div class="form-group">
+        <label for="admin-password">Password</label>
+        <input id="admin-password" type="password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" id="admin-login-btn">Login</button>
+      <p id="admin-login-status" aria-live="polite"></p>
+    </form>
+  </div>
+</section>
+
+<!-- ABOUT -->
+  <section id="about" class="section">
+    <h2>About RAM Rice</h2>
+    <p>We envision a community where fresh, healthy, and affordable rice is available to everyone, and where our customers feel confident in choosing Ram Rice Business for their daily needs.
+</p>
+    <p>Serving Catalunan Grande, Davao City.</p>
+  </section>
+
+<!-- CONTACT -->
+  <section id="contact" class="section">
+    <h2>Contact Us</h2>
+    <p>📍 <a href="https://maps.google.com?q=Catalunan%20Grande%20Davao%20City" target="_blank" rel="noopener">Catalunan Grande, Davao City</a></p>
+    <p>📞 <a href="tel:09051381268">0905-138-1268</a></p>
+    <p>📧 <a href="mailto:ramrice@gmail.com">ramrice@gmail.com</a></p>
+    <iframe src="https://www.google.com/maps?q=Catalunan%20Grande%20Davao%20City&output=embed" title="Map to RAM Rice"></iframe>
+  </section>
+</main>
+
+<footer style="position: fixed; bottom: 0; width: 100%;">© 2026 RAM Rice</footer>
+
+<script src="script.js"></script>
+
+</body>
+</html>

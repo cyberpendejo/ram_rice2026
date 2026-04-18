@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard - RAM Rice</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="https://i.ibb.co/JWfbfrgv/ramrice.png">
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <a href="#main" class="skip-link">Skip to main content</a>
+
+<header>
+  <a href="index.html"><img src="https://i.ibb.co/JWfbfrgv/ramrice.png" alt="RAM Rice logo"></a>
+  <button id="menu-toggle" aria-expanded="false" aria-label="Toggle navigation">☰</button>
+  <nav role="navigation" aria-label="Main menu">
+    <ul>
+      <li><a href="index.html#home">Home</a></li>
+      <li><a href="index.html#products">Products</a></li>
+      <li><a href="index.html#prices">Per Sack Prices</a></li>
+      <li><a href="index.html#perKilo">Per Kilo Prices</a></li>
+      <li><a href="order.html">Order</a></li>
+      <li><a href="index.html#contact">Contact</a></li>
+      <li><a href="index.html#about">About</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="main">
+
+  <!-- ORDERS SECTION -->
+  <section class="section active">
+    <div class="db-header">
+      <h1>Orders Database</h1>
+      <div class="db-header-actions">
+        <button id="download-24h-btn" class="download-btn">&#8595; Last 24 Hours</button>
+        <button id="download-date-btn" class="download-btn">&#8595; Specific Date</button>
+        <button id="logout-btn" class="logout-btn">Logout</button>
+      </div>
+    </div>
+
+    <div id="orders-status" class="db-status"></div>
+
+    <div class="admin-table-wrap">
+      <table class="admin-table" aria-label="Orders database">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Name</th>
+            <th>Product</th>
+            <th>Qty / Unit</th>
+            <th>Total Price</th>
+            <th>Contact</th>
+            <th>Email</th>
+            <th>Date & Time</th>
+          </tr>
+        </thead>
+        <tbody id="orders-body">
+          <tr><td colspan="8" style="text-align:center;">Loading orders...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ADD PRODUCT SECTION -->
+  <section class="section active">
+    <div class="db-header">
+      <h2>Add New Product</h2>
+    </div>
+
+    <form id="add-product-form" class="order-form" style="max-width:500px;">
+      <div class="form-group">
+        <label for="new-name">Product Name</label>
+        <input type="text" id="new-name" placeholder="e.g., NFA Rice" required>
+      </div>
+      <div class="form-group">
+        <label for="new-sack-price">Price per Sack (₱)</label>
+        <input type="number" id="new-sack-price" min="0" step="1" placeholder="e.g., 1100" required>
+      </div>
+      <div class="form-group">
+        <label for="new-kilo-price">Price per Kilo (₱)</label>
+        <input type="number" id="new-kilo-price" min="0" step="1" placeholder="e.g., 45" required>
+      </div>
+      <div class="form-group">
+        <label for="new-stock">Stock Quantity (Sacks)</label>
+        <input type="number" id="new-stock" min="0" step="1" placeholder="e.g., 50" required>
+      </div>
+      <div class="admin-actions">
+        <button type="submit" id="add-product-btn" class="order-btn">Add Product</button>
+      </div>
+      <p id="add-product-status" class="db-status" aria-live="polite"></p>
+    </form>
+  </section>
+
+  <!-- PRICES & STOCK EDITOR SECTION -->
+  <section class="section active">
+    <div class="db-header">
+      <h2>Prices & Stock Editor</h2>
+    </div>
+
+    <div id="prices-status" class="db-status"></div>
+
+    <form id="prices-form">
+      <div class="admin-table-wrap">
+        <table class="admin-table" aria-label="Prices and stock editor">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Price / Sack (₱)</th>
+              <th>Price / Kilo (₱)</th>
+              <th>Stock (Sacks)</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="prices-body">
+            <tr><td colspan="5" style="text-align:center;">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="admin-actions">
+        <button type="submit" id="save-prices-btn">Save Changes</button>
+        <p id="prices-save-status" class="db-status" aria-live="polite"></p>
+      </div>
+    </form>
+  </section>
+
+</main>
+
+<!-- Date Picker Modal -->
+<div id="date-picker-modal" class="order-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="date-modal-title" hidden>
+  <div class="order-modal">
+    <h2 id="date-modal-title">Select a Date</h2>
+    <p style="color:#555;margin-bottom:16px;">Download orders for a specific date (GMT+8).</p>
+    <input type="date" id="specific-date-input" style="padding:10px;border-radius:8px;border:1px solid #b8d7cb;font-size:1rem;width:100%;margin-bottom:18px;">
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button id="date-modal-confirm" class="order-btn">Download</button>
+      <button id="date-modal-cancel" class="logout-btn" style="margin:0;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 RAM Rice</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const ADMIN_TOKEN_KEY = 'ram_rice_admin_token';
+let allOrders = [];
+
+function getToken() {
+    return sessionStorage.getItem(ADMIN_TOKEN_KEY);
+}
+
+function logout() {
+    sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+    window.location.href = 'index.html#admin';
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return '—';
+    return new Date(dateStr).toLocaleString('en-PH', {
+        year: 'numeric', month: 'short', day: '2-digit',
+        hour: '2-digit', minute: '2-digit'
+    });
+}
+
+function getStockStatus(qty) {
+    if (qty <= 0)  return { label: 'Out of Stock', cls: 'status-out' };
+    if (qty <= 20) return { label: 'Low Stock',    cls: 'status-low' };
+    return             { label: 'In Stock',       cls: 'status-in'  };
+}
+
+async function loadOrders() {
+    const token  = getToken();
+    const tbody  = document.getElementById('orders-body');
+    const status = document.getElementById('orders-status');
+
+    try {
+        const res = await fetch('/api/orders', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (res.status === 401) { logout(); return; }
+        if (!res.ok) {
+            const d = await res.json();
+            throw new Error(d.error || 'Failed to fetch orders');
+        }
+
+        const { orders } = await res.json();
+        allOrders = orders;
+
+        if (!orders.length) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No orders yet.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = orders.map(o => `
+            <tr>
+                <td><strong>${o.orderId || '—'}</strong></td>
+                <td>${o.firstName || ''} ${o.lastName || ''}</td>
+                <td>${o.product || '—'}</td>
+                <td>${o.quantity} ${o.unit}</td>
+                <td>${o.totalPrice || '—'}</td>
+                <td>${o.contactNumber || '—'}</td>
+                <td>${o.email || '—'}</td>
+                <td>${formatDate(o.createdAt)}</td>
+            </tr>
+        `).join('');
+
+        status.textContent = `${orders.length} order(s) found.`;
+        status.className   = 'db-status admin-status-success';
+
+    } catch (err) {
+        console.error(err);
+        status.textContent = 'Failed to load orders: ' + err.message;
+        status.className   = 'db-status admin-status-error';
+        tbody.innerHTML    = '<tr><td colspan="8" style="text-align:center;">Error loading data.</td></tr>';
+    }
+}
+
+async function loadPrices() {
+    const tbody = document.getElementById('prices-body');
+
+    try {
+        const res      = await fetch('/api/products');
+        const { products } = await res.json();
+
+        tbody.innerHTML = products.map(p => {
+            const s = getStockStatus(p.stockQty);
+            return `
+                <tr>
+                    <td><strong>${p.name}</strong><input type="hidden" data-id="${p.id}" value="${p.id}"></td>
+                    <td><input type="number" min="0" step="1" data-id="${p.id}" data-field="sackPrice" value="${p.sackPrice}" required></td>
+                    <td><input type="number" min="0" step="1" data-id="${p.id}" data-field="kiloPrice" value="${p.kiloPrice}" required></td>
+                    <td><input type="number" min="0" step="1" data-id="${p.id}" data-field="stockQty"  value="${p.stockQty}"  required></td>
+                    <td><span class="stock-status ${s.cls}">${s.label}</span></td>
+                    <td><button type="button" class="delete-btn logout-btn" data-id="${p.id}" data-name="${p.name}">Delete</button></td>
+                </tr>
+            `;
+        }).join('');
+
+        // attach delete listeners
+        tbody.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', () => deleteProduct(btn.dataset.id, btn.dataset.name));
+        });
+
+    } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Error loading prices: ${err.message}</td></tr>`;
+    }
+}
+
+function setupPricesForm() {
+    const form       = document.getElementById('prices-form');
+    const saveStatus = document.getElementById('prices-save-status');
+    const saveBtn    = document.getElementById('save-prices-btn');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const token = getToken();
+
+        const ids = [...document.querySelectorAll('[data-id][data-field="sackPrice"]')];
+
+        const products = ids.map(el => {
+            const id        = el.dataset.id;
+            const sackPrice = Number(el.value);
+            const kiloPrice = Number(document.querySelector(`[data-id="${id}"][data-field="kiloPrice"]`).value);
+            const stockQty  = Number(document.querySelector(`[data-id="${id}"][data-field="stockQty"]`).value);
+            return { id, sackPrice, kiloPrice, stockQty };
+        });
+
+        saveBtn.disabled    = true;
+        saveBtn.textContent = 'Saving...';
+
+        try {
+            const res = await fetch('/api/products', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ products })
+            });
+
+            if (res.status === 401) { logout(); return; }
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Failed to save');
+
+            saveStatus.textContent = 'Prices and stock updated successfully!';
+            saveStatus.className   = 'db-status admin-status-success';
+            await loadPrices();
+
+        } catch (err) {
+            saveStatus.textContent = 'Error: ' + err.message;
+            saveStatus.className   = 'db-status admin-status-error';
+        } finally {
+            saveBtn.disabled    = false;
+            saveBtn.textContent = 'Save Changes';
+        }
+    });
+}
+
+async function deleteProduct(id, name) {
+    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+
+    const token = getToken();
+
+    try {
+        const res = await fetch('/api/products', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ id })
+        });
+
+        if (res.status === 401) { logout(); return; }
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to delete');
+
+        await loadPrices();
+
+    } catch (err) {
+        alert('Error deleting product: ' + err.message);
+    }
+}
+
+function setupAddProductForm() {
+    const form   = document.getElementById('add-product-form');
+    const status = document.getElementById('add-product-status');
+    const btn    = document.getElementById('add-product-btn');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const token = getToken();
+
+        const name       = document.getElementById('new-name').value.trim();
+        const sackPrice  = Number(document.getElementById('new-sack-price').value);
+        const kiloPrice  = Number(document.getElementById('new-kilo-price').value);
+        const stockQty   = Number(document.getElementById('new-stock').value);
+
+        btn.disabled    = true;
+        btn.textContent = 'Adding...';
+
+        try {
+            const res = await fetch('/api/products', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ name, sackPrice, kiloPrice, stockQty })
+            });
+
+            if (res.status === 401) { logout(); return; }
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Failed to add product');
+
+            status.textContent = `"${name}" added successfully!`;
+            status.className   = 'db-status admin-status-success';
+            form.reset();
+            await loadPrices();
+
+        } catch (err) {
+            status.textContent = 'Error: ' + err.message;
+            status.className   = 'db-status admin-status-error';
+        } finally {
+            btn.disabled    = false;
+            btn.textContent = 'Add Product';
+        }
+    });
+}
+
+function ordersToSheet(orders) {
+    return orders.map(o => ({
+        'Order ID':    o.orderId        || '',
+        'First Name':  o.firstName      || '',
+        'Last Name':   o.lastName       || '',
+        'Product':     o.product        || '',
+        'Quantity':    o.quantity       || '',
+        'Unit':        o.unit           || '',
+        'Unit Price':  o.unitPrice      || '',
+        'Total Price': o.totalPrice     || '',
+        'Contact':     o.contactNumber  || '',
+        'Email':       o.email          || '',
+        'Date & Time (GMT+8)': o.createdAt
+            ? new Date(o.createdAt).toLocaleString('en-PH', { timeZone: 'Asia/Singapore', hour12: true })
+            : ''
+    }));
+}
+
+function triggerXLSXDownload(rows, filename) {
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Orders');
+    XLSX.writeFile(wb, filename);
+}
+
+function downloadLast24Hours() {
+    const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const filtered = allOrders.filter(o => o.createdAt && new Date(o.createdAt) >= cutoff);
+    if (!filtered.length) { alert('No orders found in the last 24 hours.'); return; }
+    const label = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Singapore' }).replace(/\//g, '-');
+    triggerXLSXDownload(ordersToSheet(filtered), `orders_last24h_${label}.xlsx`);
+}
+
+function downloadByDate(dateStr) {
+    // dateStr is YYYY-MM-DD in GMT+8
+    const filtered = allOrders.filter(o => {
+        if (!o.createdAt) return false;
+        const localDate = new Date(o.createdAt).toLocaleDateString('en-CA', { timeZone: 'Asia/Singapore' });
+        return localDate === dateStr;
+    });
+    if (!filtered.length) { alert(`No orders found for ${dateStr} (GMT+8).`); return; }
+    triggerXLSXDownload(ordersToSheet(filtered), `orders_${dateStr}.xlsx`);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (!getToken()) {
+        window.location.href = 'index.html#admin';
+        return;
+    }
+
+    const menuToggle = document.getElementById('menu-toggle');
+    const nav        = document.querySelector('nav');
+    if (menuToggle && nav) {
+        menuToggle.addEventListener('click', () => {
+            const expanded = nav.classList.toggle('open');
+            menuToggle.setAttribute('aria-expanded', expanded);
+        });
+    }
+
+    document.getElementById('logout-btn').addEventListener('click', logout);
+
+    document.getElementById('download-24h-btn').addEventListener('click', downloadLast24Hours);
+
+    const dateModal        = document.getElementById('date-picker-modal');
+    const dateInput        = document.getElementById('specific-date-input');
+    const dateConfirmBtn   = document.getElementById('date-modal-confirm');
+    const dateCancelBtn    = document.getElementById('date-modal-cancel');
+
+    // default date input to today in GMT+8
+    dateInput.value = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Singapore' });
+
+    document.getElementById('download-date-btn').addEventListener('click', () => {
+        dateModal.removeAttribute('hidden');
+    });
+
+    dateCancelBtn.addEventListener('click', () => dateModal.setAttribute('hidden', ''));
+    dateModal.addEventListener('click', e => { if (e.target === dateModal) dateModal.setAttribute('hidden', ''); });
+
+    dateConfirmBtn.addEventListener('click', () => {
+        const val = dateInput.value;
+        if (!val) { alert('Please select a date.'); return; }
+        downloadByDate(val);
+        dateModal.setAttribute('hidden', '');
+    });
+
+    loadOrders();
+    loadPrices();
+    setupPricesForm();
+    setupAddProductForm();
+});
+</script>
+
+</body>
+</html>
