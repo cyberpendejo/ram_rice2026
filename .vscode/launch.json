@@ -1,0 +1,14 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "msedge",
+            "request": "launch",
+            "name": "Open ram_rice.html",
+            "file": "c:\\Users\\USER\\OneDrive\\Desktop\\ram_rice\\ram_rice.html"
+        }
+    ]
+}

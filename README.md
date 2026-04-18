@@ -1,2 +1,3 @@
-# ram_rice2026
-WebDev Final Project
+# ram_rice
+web dev project
+final deployment 18/04/26
