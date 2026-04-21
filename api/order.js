@@ -18,7 +18,7 @@ async function sendConfirmationEmail({ to, firstName, lastName, orderId, product
         subject: `Order Confirmation - ${orderId}`,
         html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e0e0e0; border-radius: 8px;">
-                <img src="https://i.ibb.co/JWfbfrgv/ramrice.png" alt="RAM Rice" style="height: 50px; margin-bottom: 16px;" />
+                <img src="./img/ramrice.png" alt="RAM Rice" style="height: 50px; margin-bottom: 16px;" />
                 <h2 style="color: #2e7d32;">Order Placed Successfully!</h2>
                 <p>Hi <strong>${firstName} ${lastName}</strong>, thank you for your order.</p>
                 <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
